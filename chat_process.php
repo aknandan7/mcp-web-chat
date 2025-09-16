@@ -1,38 +1,35 @@
 <?php
 header('Content-Type: application/json');
 
-// Include config and Employee model
-$config = require __DIR__ . '/config.php';
 require_once __DIR__ . '/models/Employee.php';
+require_once __DIR__ . '/dynamicQeryBuilder.php';
 
-// Create Employee instance
+$config = require __DIR__ . '/config.php';
 $employee = new Employee($config);
+$metadata = require __DIR__ . '/metadata.php';
+
+$data = json_decode(file_get_contents('php://input'), true);
 
 try {
-    // Hardcoded indo_code for testing
-    $indo_code = "SAM-EC2003";
+    $indo_code = $data['indo_code'] ?? null;
+    $userQuery = $data['query'] ?? '';
 
-    // Hardcoded query for testing
-    $query = "SELECT resource_name,gender,dob,designation FROM emp_personal_info WHERE indo_code='$indo_code'";
-
-    // Send query via MCPClient
-    $result = $employee->query($indo_code, $query);
-
-    // Ensure result is always an array
-    if (!is_array($result)) {
-        $result = ['result' => $result];
+    if (!$indo_code || !$userQuery) {
+        throw new Exception('indo_code or query is missing.');
     }
 
-    // Return JSON response
+    // Build dynamic query and get response
+    $builderResult = buildDynamicQuery($employee, $metadata, $indo_code, $userQuery);
+
     echo json_encode([
-        'status'    => 'success',
+        'status' => 'success',
         'indo_code' => $indo_code,
-        'query'     => $query,
-        'data'      => $result
+        'response' => $builderResult['response']
     ]);
-} catch(Exception $e) {
+
+} catch (Exception $e) {
     echo json_encode([
-        'status'  => 'error',
+        'status' => 'error',
         'message' => $e->getMessage()
     ]);
 }
