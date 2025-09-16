@@ -21,7 +21,7 @@
 
         #chatWrapper {
             width: 100%;
-            max-width: 400px;
+            max-width: 700px;
             display: none; /* Initially hidden, shown with toggle */
         }
 
@@ -85,6 +85,14 @@
             const wrapper = document.getElementById('chatWrapper');
             wrapper.style.display = (wrapper.style.display === 'none' || wrapper.style.display === '') ? 'block' : 'none';
         }
+
+        // Function to send message when pressing Enter
+        document.getElementById("query").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent default Enter key action (form submit)
+                document.getElementById("sendBtn").click(); // Trigger the Send button click
+            }
+        });
     </script>
 
     <!-- ✅ Bootstrap JS Bundle -->
