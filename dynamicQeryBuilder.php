@@ -1,38 +1,54 @@
 <?php
-#########################################################
-# Dynamic Query Builder Function
-#########################################################
+require_once __DIR__ . '/models/Employee.php';
 
-function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery) {
+/**
+ * Build dynamic query based on natural language and synonyms
+ * @param Employee $employee
+ * @param array $metadata - table => [columns]
+ * @param string $indo_code
+ * @param string $userQuery
+ * @param array $synonyms - column => [synonyms]
+ * @return array ['response' => 'formatted string']
+ */
+function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery, $synonyms = []) {
     $userQueryLower = strtolower($userQuery);
     $requestedFields = [];
 
-    // Step 1: Detect requested columns from user query
+    // Step 1: detect fields using synonyms
     foreach ($metadata as $table => $columns) {
         foreach ($columns as $col) {
-            $colNormalized = str_replace('_', ' ', strtolower($col));
-            if (strpos($userQueryLower, $colNormalized) !== false) {
-                $requestedFields[$table][] = $col;
+            $allNames = [$col];
+            if (isset($synonyms[$col])) {
+                $allNames = array_merge($allNames, $synonyms[$col]);
+            }
+
+            foreach ($allNames as $name) {
+                $nameNormalized = strtolower(str_replace('_', ' ', $name));
+                if (strpos($userQueryLower, $nameNormalized) !== false) {
+                    $requestedFields[$table][] = $col;
+                    break;
+                }
             }
         }
     }
 
     if (empty($requestedFields)) {
-        throw new Exception('Could not detect any fields from query.');
+        throw new Exception("Couldn't detect any field from your query.");
     }
 
-    // Step 2: Execute queries per table
+    // Step 2: run queries for detected tables
     $allResults = [];
     foreach ($requestedFields as $table => $cols) {
         $colsStr = implode(', ', $cols);
         $query = "SELECT $colsStr FROM $table WHERE indo_code='$indo_code'";
         $result = $employee->query($indo_code, $query);
+
         if (is_array($result) && count($result) > 0) {
-            $allResults[$table] = $result[0]; // Take first row per table
+            $allResults[$table] = $result[0]; // first row per table
         }
     }
 
-    // Step 3: Format response dynamically
+    // Step 3: format response dynamically
     $botReply = [];
     foreach ($allResults as $table => $row) {
         foreach ($row as $key => $value) {
@@ -43,9 +59,7 @@ function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery) {
         }
     }
 
-    if (empty($botReply)) {
-        $botReply[] = "No data found.";
-    }
+    if (empty($botReply)) $botReply[] = "No data found.";
 
     return ['response' => implode(', ', $botReply)];
 }
