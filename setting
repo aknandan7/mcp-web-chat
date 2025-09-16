@@ -11,4 +11,6 @@ mcp-web-chat/
 ├─ mcp-php-sdk/
 └─ mcp-database-server/
 
-####################################### [] ###################################
+####################################### [Database MCP Server Start] ###################################
+[1] cd mcp-database-server
+[2] node server.js
