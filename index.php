@@ -4,8 +4,30 @@
   <meta charset="UTF-8">
   <title>Responsive HRMS Chat</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/custom.css">
+  <style>
+    .chat-message .bubble {
+      display: inline-block;
+      padding: 10px 15px;
+      border-radius: 18px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+
+    .chat-message.user .bubble {
+      background: #3498db;
+      color: #fff;
+      text-align: left;
+    }
+
+    .chat-message.bot .bubble {
+      background: #ecf0f1;
+      color: #2c3e50;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
 
@@ -33,7 +55,7 @@
       <!-- Chat -->
       <div class="col-xs-12 col-md-12">
         <div class="chat-box" id="chatBox">
-          <div class="chat-message bot"><div class="bubble">Hello! How can I help you today?</div></div>
+          <div class="chat-message bot"><div class="bubble">Hello! How can I help you today? <span style="font-size:10px; margin-left:5px;"><i class="fa fa-clock-o"></i> 09:00</span></div></div>
         </div>
         <div class="input-group form-group-lg">
           <!-- hidden empCode -->
@@ -61,6 +83,14 @@
       }
     });
 
+    // Helper: get current time in HH:MM format
+    function getCurrentTime() {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+
     // Dynamic chat fetch
     document.getElementById('sendBtn').addEventListener('click', () => {
         const query = document.getElementById('query').value.trim();
@@ -69,11 +99,22 @@
 
         const chatBox = document.getElementById('chatBox');
 
-        // Show user message
-        chatBox.innerHTML += `<div class="chat-message user"><div class="bubble">You: ${query}</div></div>`;
+        // Show user message with time
+        chatBox.innerHTML += `<div class="chat-message user">
+                                <div class="bubble">You: ${query} <span style="font-size:10px; margin-left:5px;"><i class="fa fa-clock-o"></i> ${getCurrentTime()}</span></div>
+                              </div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
 
         // Clear input
         document.getElementById('query').value = "";
+
+        // Show typing indicator
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "chat-message bot";
+        typingIndicator.id = "typingIndicator";
+        typingIndicator.innerHTML = `<div class="bubble">Bot is typing...</div>`;
+        chatBox.appendChild(typingIndicator);
+        chatBox.scrollTop = chatBox.scrollHeight;
 
         // Fetch from PHP
         fetch('chat_process.php', {
@@ -83,6 +124,10 @@
         })
         .then(res => res.json())
         .then(data => {
+            // Remove typing indicator
+            const typingDiv = document.getElementById('typingIndicator');
+            if (typingDiv) typingDiv.remove();
+
             let botReply = "Sorry, I couldn't understand.";
 
             if (data.status === "success" && data.response) {
@@ -91,11 +136,18 @@
                 botReply = "Error: " + data.message;
             }
 
-            chatBox.innerHTML += `<div class="chat-message bot"><div class="bubble">Bot: ${botReply}</div></div>`;
+            chatBox.innerHTML += `<div class="chat-message bot">
+                                    <div class="bubble">Bot: ${botReply} <span style="font-size:10px; margin-left:5px;"><i class="fa fa-clock-o"></i> ${getCurrentTime()}</span></div>
+                                  </div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
         })
         .catch(err => {
-            chatBox.innerHTML += `<div class="chat-message bot"><div class="bubble">Bot: Error - ${err.message}</div></div>`;
+            const typingDiv = document.getElementById('typingIndicator');
+            if (typingDiv) typingDiv.remove();
+            chatBox.innerHTML += `<div class="chat-message bot">
+                                    <div class="bubble">Bot: Error - ${err.message} <span style="font-size:10px; margin-left:5px;"><i class="fa fa-clock-o"></i> ${getCurrentTime()}</span></div>
+                                  </div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
     });
 
