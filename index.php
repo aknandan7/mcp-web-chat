@@ -55,7 +55,12 @@
       <!-- Chat -->
       <div class="col-xs-12 col-md-12">
         <div class="chat-box" id="chatBox">
-          <div class="chat-message bot"><div class="bubble">Hello! How can I help you today? <span style="font-size:10px; margin-left:5px;"><i class="fa fa-clock-o"></i> 09:00</span></div></div>
+          <div class="chat-message bot"><div class="bubble">Hello! How can I help you today? <span style="font-size:10px; margin-left:5px;"><i class="fa fa-clock-o"></i>
+          <?php
+            date_default_timezone_set('Asia/Kolkata');
+            echo date('H:i');
+          ?>
+          </span></div></div>
         </div>
         <div class="input-group form-group-lg">
           <!-- hidden empCode -->
