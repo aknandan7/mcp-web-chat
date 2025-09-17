@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Responsive HRMS Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- important -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <style>
     body {
@@ -19,55 +19,39 @@
       bottom: 0;
       width: 250px;
       background: #ffffff;
-      color: #424546;
-      transition: all 0.3s;
+      border-right: 1px solid #ddd;
       padding-top: 50px;
       z-index: 1000;
-      overflow-y: auto;
-      border-right: 1px solid #ddd;
+      transition: all 0.3s;
     }
-
     .sidebar.collapsed { width: 80px; }
-
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .sidebar ul li {
-      padding: 12px 20px;
-      cursor: pointer;
-    }
-
+    .sidebar ul { list-style: none; margin: 0; padding: 0; }
+    .sidebar ul li { padding: 12px 20px; cursor: pointer; }
     .sidebar ul li:hover { background: #e1e2e3; }
 
-    /* Content wrapper */
+    /* Content */
     .content {
       margin-left: 250px;
       transition: margin-left 0.3s;
       padding: 20px;
-      height: 100vh;
-      overflow-y: auto;
+      min-height: 100vh;
+      position: fixed;
     }
-
     .content.expanded { margin-left: 80px; }
 
-    /* Chat box */
+    /* Chat */
     .chat-box {
       background: #fff;
       border-radius: 6px;
       padding: 20px;
-      height: calc(100vh - 180px);
+      height: calc(100vh - 90px);
       overflow-y: auto;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       margin-bottom: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-
     .chat-message { margin-bottom: 15px; }
     .chat-message.user { text-align: left; }
     .chat-message.bot { text-align: right; }
-
     .chat-message .bubble {
       display: inline-block;
       padding: 10px 15px;
@@ -75,18 +59,10 @@
       max-width: 70%;
       word-wrap: break-word;
     }
+    .chat-message.user .bubble { background: #3498db; color: #fff; }
+    .chat-message.bot .bubble { background: #ecf0f1; color: #2c3e50; }
 
-    .chat-message.user .bubble {
-      background: #3498db;
-      color: #fff;
-    }
-
-    .chat-message.bot .bubble {
-      background: #ecf0f1;
-      color: #2c3e50;
-    }
-
-    /* Toggle Button */
+    /* Toggle button */
     .toggle-btn {
       position: fixed;
       top: 10px;
@@ -97,9 +73,10 @@
       padding: 8px 12px;
       border-radius: 4px;
       cursor: pointer;
-      z-index: 1100;
+      z-index: 1101;
     }
 
+    /* Mobile */
     @media (max-width: 767px) {
       .sidebar { width: 200px; left: -200px; }
       .sidebar.show { left: 0; }
@@ -122,27 +99,24 @@
   <!-- Toggle Button -->
   <button class="toggle-btn" id="toggleBtn">☰</button>
 
-  <!-- Content -->
+  <!-- Main Content -->
   <div class="content" id="content">
     <div class="row">
-      <!-- Chat Column -->
-      <div class="col-sm-12 col-md-9">
+      <!-- Chat -->
+      <div class="col-xs-12 col-md-9">
         <div class="chat-box" id="chatBox">
-          <!-- Example initial messages -->
           <div class="chat-message bot"><div class="bubble">Hello! How can I help you today?</div></div>
         </div>
-
-        <!-- Chat Input -->
-        <div class="input-group">
+        <div class="input-group form-group-lg">
           <input type="text" class="form-control" id="query" placeholder="Type a message...">
           <span class="input-group-btn">
-            <button class="btn btn-primary" id="sendBtn">Send</button>
+            <button class="btn btn-primary btn-lg" id="sendBtn">Send</button>
           </span>
         </div>
       </div>
 
-      <!-- Right Column -->
-      <div class="col-sm-12 col-md-3">
+      <!-- Right Sidebar -->
+      <div class="col-xs-12 col-md-3 hidden-xs hidden-sm">
         <div class="panel panel-default">
           <div class="panel-heading">Right Sidebar</div>
           <div class="panel-body">
@@ -153,7 +127,7 @@
     </div>
   </div>
 
-  <!-- JS -->
+  <!-- Scripts -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <script>
@@ -167,7 +141,7 @@
       }
     });
 
-    // Chat send
+    // Chat
     const chatBox = document.getElementById("chatBox");
     const queryInput = document.getElementById("query");
     const sendBtn = document.getElementById("sendBtn");
