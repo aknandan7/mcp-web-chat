@@ -44,7 +44,7 @@
       background: #fff;
       border-radius: 6px;
       padding: 20px;
-      height: calc(100vh - 90px);
+      height: calc(100vh - 143px);
       overflow-y: auto;
       margin-bottom: 15px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -61,7 +61,18 @@
     }
     .chat-message.user .bubble { background: #3498db; color: #fff; }
     .chat-message.bot .bubble { background: #ecf0f1; color: #2c3e50; }
-
+    .chat-top-header{
+        background-color: #fff;
+        padding: 7px 18px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        top: 0px;
+        margin: -19px 0px 10px 0px;
+        height: 60px;
+    }
+    .chat-top-header h5{
+        font-size: 18px;
+        text-align: center;
+    }
     /* Toggle button */
     .toggle-btn {
       position: fixed;
@@ -102,8 +113,13 @@
   <!-- Main Content -->
   <div class="content" id="content">
     <div class="row">
+        <div class="col-md-12">
+            <div class="chat-top-header">
+                <h5>iHRMS Chat Assistant</h5>
+            </div>
+        </div>
       <!-- Chat -->
-      <div class="col-xs-12 col-md-9">
+      <div class="col-xs-12 col-md-12">
         <div class="chat-box" id="chatBox">
           <div class="chat-message bot"><div class="bubble">Hello! How can I help you today?</div></div>
         </div>
@@ -116,14 +132,15 @@
       </div>
 
       <!-- Right Sidebar -->
-      <div class="col-xs-12 col-md-3 hidden-xs hidden-sm">
+      <!-- <div class="col-xs-12 col-md-3 hidden-xs hidden-sm hidden-lg">
         <div class="panel panel-default">
           <div class="panel-heading">Right Sidebar</div>
           <div class="panel-body">
             Extra content, stats, users list, etc.
           </div>
         </div>
-      </div>
+      </div> -->
+      <!-- ================ -->
     </div>
   </div>
 
