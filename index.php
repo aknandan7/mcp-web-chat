@@ -101,10 +101,11 @@
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <ul>
-      <li><span class="glyphicon glyphicon-comment"></span> Chats</li>
-      <li><span class="glyphicon glyphicon-user"></span> Profile</li>
-      <li><span class="glyphicon glyphicon-cog"></span> Settings</li>
+      <li><span class="glyphicon glyphicon-edit"></span> New Chats</li>
     </ul>
+    <div class="hidden-xs hidden-sm">
+     <p class="text-center">Chats History</p>
+    </div>
   </div>
 
   <!-- Toggle Button -->
