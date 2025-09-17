@@ -36,23 +36,14 @@
           <div class="chat-message bot"><div class="bubble">Hello! How can I help you today?</div></div>
         </div>
         <div class="input-group form-group-lg">
+          <!-- hidden empCode -->
+          <input type="hidden" id="indo_code" value="SAM-EC2003">
           <input type="text" class="form-control" id="query" placeholder="Type a message...">
           <span class="input-group-btn">
             <button class="btn btn-primary btn-lg" id="sendBtn">Send</button>
           </span>
         </div>
       </div>
-
-      <!-- Right Sidebar -->
-      <!-- <div class="col-xs-12 col-md-3 hidden-xs hidden-sm hidden-lg">
-        <div class="panel panel-default">
-          <div class="panel-heading">Right Sidebar</div>
-          <div class="panel-body">
-            Extra content, stats, users list, etc.
-          </div>
-        </div>
-      </div> -->
-      <!-- ================ -->
     </div>
   </div>
 
@@ -70,44 +61,49 @@
       }
     });
 
-    // Chat
-    const chatBox = document.getElementById("chatBox");
-    const queryInput = document.getElementById("query");
-    const sendBtn = document.getElementById("sendBtn");
+    // Dynamic chat fetch
+    document.getElementById('sendBtn').addEventListener('click', () => {
+        const query = document.getElementById('query').value.trim();
+        const empCode = document.getElementById('indo_code').value;
+        if (!query) return;
 
-    function addMessage(text, sender) {
-      const div = document.createElement("div");
-      div.className = "chat-message " + sender;
-      div.innerHTML = `<div class="bubble">${text}</div>`;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+        const chatBox = document.getElementById('chatBox');
 
-    function botReply(userText) {
-      let reply = "";
-      if (userText.toLowerCase().includes("name and dob")) {
-        reply = "Resource name: Bilal Ahmed Khan, Dob: 10/04/198";
-      } else if (userText.toLowerCase().includes("name")) {
-        reply = "Resource name: Bilal Ahmed Khan";
-      } else {
-        reply = "Sorry, I don’t understand.";
-      }
-      addMessage(reply, "bot");
-    }
+        // Show user message
+        chatBox.innerHTML += `<div class="chat-message user"><div class="bubble">You: ${query}</div></div>`;
 
-    sendBtn.addEventListener("click", function() {
-      const text = queryInput.value.trim();
-      if (text) {
-        addMessage("You: " + text, "user");
-        queryInput.value = "";
-        setTimeout(() => botReply(text), 500);
-      }
+        // Clear input
+        document.getElementById('query').value = "";
+
+        // Fetch from PHP
+        fetch('chat_process.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ indo_code: empCode, query })
+        })
+        .then(res => res.json())
+        .then(data => {
+            let botReply = "Sorry, I couldn't understand.";
+
+            if (data.status === "success" && data.response) {
+                botReply = data.response; // Response from PHP
+            } else if (data.status === "error") {
+                botReply = "Error: " + data.message;
+            }
+
+            chatBox.innerHTML += `<div class="chat-message bot"><div class="bubble">Bot: ${botReply}</div></div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(err => {
+            chatBox.innerHTML += `<div class="chat-message bot"><div class="bubble">Bot: Error - ${err.message}</div></div>`;
+        });
     });
 
-    queryInput.addEventListener("keydown", function(e) {
+    // Enter key to send
+    document.getElementById("query").addEventListener("keydown", function(e) {
       if (e.key === "Enter") {
         e.preventDefault();
-        sendBtn.click();
+        document.getElementById("sendBtn").click();
       }
     });
   </script>
