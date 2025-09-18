@@ -1,200 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>iHRMS Chat Assistant</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {padding:20px;}
-    .chat-box {height:400px; overflow-y:auto; border:1px solid #ccc; padding:10px; border-radius:8px; background:#f9f9f9;}
-    .chat-message .bubble {display:inline-block; padding:10px 15px; border-radius:18px; max-width:70%; word-wrap:break-word; margin-bottom:5px;}
-    .chat-message.user .bubble {background:#3498db; color:#fff;}
-    .chat-message.bot .bubble {background:#ecf0f1; color:#2c3e50;}
-    .sidebar {width:250px; float:left; margin-right:20px;}
-    .sidebar ul {list-style:none; padding:0;}
-    .sidebar ul li {padding:10px; border-bottom:1px solid #ccc; cursor:pointer;}
-  </style>
+    <meta charset="UTF-8">
+    <title>iHRMS Chat Assistant</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: #fafafa;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: #f5f5f5;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar h4 {
+            margin-top: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .sidebar ul li:hover {
+            background: #e0e0e0;
+        }
+
+        /* Toggle button (mobile) */
+        .toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            z-index: 1100;
+            display: none;
+        }
+
+        /* Main chat content */
+        .content {
+            margin-left: 250px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+        }
+
+        .chat-message.user .bubble {
+            background: #007bff;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 70%;
+            margin-left: auto;
+            display: inline-block;
+        }
+
+        .chat-message.bot .bubble {
+            background: #eaeaea;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 70%;
+            margin-right: auto;
+            display: inline-block;
+        }
+
+        .chat-time {
+            display: block;
+            font-size: 11px;
+            margin-top: 4px;
+            color: #666;
+        }
+
+        .chat-input {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background: #fff;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .toggle-btn {
+                display: block;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="row">
-  <div class="col-md-3 sidebar" id="sidebar">
-    <ul>
-      <li id="newChatBtn"><i class="fa fa-plus"></i> New Chat</li>
-      <hr>
-      <p>Chats History</p>
-      <ul id="chatSessionsList"></ul>
-    </ul>
-  </div>
-
-  <div class="col-md-9">
-    <h4>iHRMS Chat Assistant</h4>
-    <div class="chat-box" id="chatBox"></div>
-    <div class="input-group">
-      <input type="hidden" id="indo_code" value="SAM-EC2003">
-      <input type="text" id="query" class="form-control" placeholder="Type a message...">
-      <span class="input-group-btn">
-        <button class="btn btn-primary" id="sendBtn">Send</button>
-      </span>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div style="border-bottom: 1px solid #ddd;padding: 2px 0px 7px 34px;">
+            <h4><i class="fa fa-comments"></i> iHRMS Chat</h4>
+        </div>
+        <ul>
+            <li id="newChatBtn"><i class="fa fa-plus"></i> New Chat</li>
+        </ul>
+        <hr>
+        <p><strong>Chats History</strong></p>
+        <ul id="chatSessionsList"></ul>
     </div>
-  </div>
-</div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script>
-let currentSessionId = null;
+    <!-- Toggle button (mobile) -->
+    <button class="toggle-btn" id="toggleBtn"><i class="fa fa-bars"></i></button>
 
-// Helper: get current time
-function getCurrentTime() {
-  const now = new Date();
-  return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-}
+    <!-- Main Content -->
+    <div class="content" id="content">
+        <div class="chat-header">
+            <span>iHRMS Chat Assistant</span>
+        </div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="chat-input">
+            <input type="hidden" id="indo_code" value="SAM-EC2003">
+            <input type="hidden" id="session_id" value="">
+            <div class="input-group">
+                <input type="text" id="query" class="form-control" placeholder="Type a message...">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" id="sendBtn">Send</button>
+                </span>
+            </div>
+        </div>
+    </div>
 
-// Load chat sessions
-function loadSessions() {
-  const empCode = $('#indo_code').val();
-  $.ajax({
-    url:'chat_process.php?action=get_sessions',
-    method:'POST',
-    contentType:'application/json',
-    data: JSON.stringify({indo_code:empCode}),
-    success:function(res){
-      if(res.status==='success'){
-        $('#chatSessionsList').html('');
-        res.sessions.forEach(s=>{
-          $('#chatSessionsList').append(`<li data-id="${s.id}">${s.title} <small>${s.created_at}</small></li>`);
-        });
-      }
-    }
-  });
-}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        let currentSessionId = null;
 
-// Load chat history
-function loadHistory(sessionId){
-  $('#chatBox').html('');
-  $.getJSON(`chat_process.php?action=get_history&session_id=${sessionId}`, function(res){
-    if(res.status==='success'){
-      res.messages.forEach(m=>{
-        const cls = m.message_from==='user' ? 'user' : 'bot';
-        $('#chatBox').append(`<div class="chat-message ${cls}"><div class="bubble">${m.message} <small>${m.created_at}</small></div></div>`);
-      });
-      $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
-    }
-  });
-}
-
-// Create new session
-function newSession(callback){
-  const empCode = $('#indo_code').val();
-  $.ajax({
-    url:'chat_process.php?action=new_session',
-    method:'POST',
-    contentType:'application/json',
-    data: JSON.stringify({indo_code:empCode}),
-    success:function(res){
-      if(res.status==='success'){
-        currentSessionId = res.session_id;
-        $('#chatBox').html(`<div class="chat-message bot"><div class="bubble">Hello! How can I help you today? <small>${getCurrentTime()}</small></div></div>`);
-        loadSessions();
-        if(callback) callback();
-      }
-    }
-  });
-}
-
-// Send message
-$('#sendBtn').click(function(){
-  const query = $('#query').val().trim();
-  const empCode = $('#indo_code').val();
-  if(!query || !currentSessionId) return;
-  
-  $('#chatBox').append(`<div class="chat-message user"><div class="bubble">${query} <small>${getCurrentTime()}</small></div></div>`);
-  $('#query').val('');
-  $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
-
-  // Typing indicator
-  const typingDiv = $('<div class="chat-message bot"><div class="bubble">Bot is typing...</div></div>');
-  $('#chatBox').append(typingDiv);
-  $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
-
-  $.ajax({
-    url:'chat_process.php?action=send_message',
-    method:'POST',
-    contentType:'application/json',
-    data: JSON.stringify({indo_code:empCode, session_id:currentSessionId, query:query}),
-    success:function(res){
-      typingDiv.remove();
-      if(res.status==='success'){
-        $('#chatBox').append(`<div class="chat-message bot"><div class="bubble">${res.response} <small>${getCurrentTime()}</small></div></div>`);
-        $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
-      } else {
-        alert(res.message);
-      }
-    }
-  });
-});
-
-// Press enter to send
-$('#query').keypress(function(e){if(e.which===13){$('#sendBtn').click();}});
-
-// Click new chat
-$('#newChatBtn').click(function(){newSession();});
-
-// Click chat session from history
-$('#chatSessionsList').on('click','li',function(){
-  currentSessionId = $(this).data('id');
-  loadHistory(currentSessionId);
-});
-
-// Initial load
-$(document).ready(function(){
-  loadSessions();
-  newSession(); // optional: create new chat on page load
-});
-
-/*****************[ chat History Reload]****************** */
-// Click event to load chat history
-document.getElementById("chatSessionsList").addEventListener("click", function (e) {
-    if (e.target && e.target.closest("li")) {
-        const sessionId = e.target.closest("li").getAttribute("data-id");
-        loadChatHistory(sessionId);
-    }
-});
-
-// Function to fetch & show chat history
-function loadChatHistory(sessionId) {
-    const chatBox = document.getElementById("chatBox");
-    chatBox.innerHTML = `<div class="chat-message bot"><div class="bubble">Loading chat history...</div></div>`;
-
-    fetch("chat_history.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId })
-    })
-    .then(res => res.json())
-    .then(data => {
-        chatBox.innerHTML = ""; // Clear box
-        if (data.status === "success" && data.history.length > 0) {
-            data.history.forEach(msg => {
-                const time = new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                if (msg.sender === "user") {
-                    chatBox.innerHTML += `<div class="chat-message user"><div class="bubble">You: ${msg.message} <span class="chat-time"><i class="fa fa-clock-o"></i> ${time}</span></div></div>`;
-                } else {
-                    chatBox.innerHTML += `<div class="chat-message bot"><div class="bubble">Bot: ${msg.message} <span class="chat-time"><i class="fa fa-clock-o"></i> ${time}</span></div></div>`;
-                }
-            });
-        } else {
-            chatBox.innerHTML = `<div class="chat-message bot"><div class="bubble">No history found for this session.</div></div>`;
+        function getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         }
-        chatBox.scrollTop = chatBox.scrollHeight;
-    })
-    .catch(err => {
-        chatBox.innerHTML = `<div class="chat-message bot"><div class="bubble">Error loading history: ${err.message}</div></div>`;
+
+        // Sidebar toggle
+        $('#toggleBtn').click(function () {
+            $('#sidebar').toggleClass('show');
+        });
+
+        // Load chat sessions
+     function loadSessions() {
+    const empCode = $('#indo_code').val();
+    $.ajax({
+        url: 'chat_process.php?action=get_sessions',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ indo_code: empCode }),
+        success: function (res) {
+            if (res.status === 'success') {
+                $('#chatSessionsList').html('');
+                if (res.sessions.length === 0) {
+                    $('#chatBox').html('<div style="text-align:center;color:#666;margin-top:20px;">No chat history yet</div>');
+                    return;
+                }
+                // Append sessions to sidebar
+                res.sessions.forEach(s => {
+                    $('#chatSessionsList').append(
+                        `<li data-id="${s.id}">${s.title} <small>${s.created_at}</small></li>`
+                    );
+                });
+                // Automatically load the latest session (first in array)
+                const latestSessionId = res.sessions[0].id;
+                loadHistory(latestSessionId);
+            }
+        }
     });
 }
-  
-</script>
+
+        // Load chat history
+       // Load chat history
+function loadHistory(sessionId) {
+    if (!sessionId) return alert("Session ID missing");
+    currentSessionId = sessionId;
+    $('#session_id').val(sessionId);
+
+    $('#chatBox').html('');
+    const empCode = $('#indo_code').val();
+    $.ajax({
+        url: 'chat_process.php?action=get_history',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ session_id: currentSessionId, indo_code: empCode }),
+        success: function (res) {
+            $('#chatBox').html('');
+            if (res.status === 'success') {
+                if (res.history.length === 0) {
+                    $('#chatBox').html('<div style="text-align:center;color:#666;margin-top:20px;">No chat history yet</div>');
+                } else {
+                    res.history.forEach(m => {
+                        const cls = m.sender === 'user' ? 'user' : 'bot';
+                        $('#chatBox').append(
+                            `<div class="chat-message ${cls}"><div class="bubble">${m.message} <small>${m.created_at}</small></div></div>`
+                        );
+                    });
+                }
+                $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
+            } else {
+                alert(res.message);
+            }
+        }
+    });
+}
+
+
+        // Create new session
+        function newSession() {
+            const empCode = $('#indo_code').val();
+            $.ajax({
+                url: 'chat_process.php?action=new_session',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ indo_code: empCode }),
+                success: function (res) {
+                    if (res.status === 'success') {
+                        currentSessionId = res.session_id;
+                        $('#session_id').val(currentSessionId);
+                        $('#chatBox').html(
+                            `<div class="chat-message bot"><div class="bubble">Hello! How can I help you today? <small>${getCurrentTime()}</small></div></div>`
+                        );
+                        loadSessions();
+                    } else alert(res.message || "Failed to create session");
+                }
+            });
+        }
+
+        // Send message
+        $('#sendBtn').click(function () {
+            const query = $('#query').val().trim();
+            if (!query) return;
+            const empCode = $('#indo_code').val();
+            if (!currentSessionId) {
+                alert("Please start a new chat first!");
+                return;
+            }
+
+            $('#chatBox').append(
+                `<div class="chat-message user"><div class="bubble">${query} <small>${getCurrentTime()}</small></div></div>`
+            );
+            $('#query').val('');
+            $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
+
+            const typingDiv = $('<div class="chat-message bot"><div class="bubble">Bot is typing...</div></div>');
+            $('#chatBox').append(typingDiv);
+            $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
+
+            $.ajax({
+                url: 'chat_process.php?action=send_message',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ indo_code: empCode, session_id: currentSessionId, query: query }),
+                success: function (res) {
+                    typingDiv.remove();
+                    if (res.status === 'success') {
+                        $('#chatBox').append(
+                            `<div class="chat-message bot"><div class="bubble">${res.response} <small>${getCurrentTime()}</small></div></div>`
+                        );
+                        $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
+                    } else alert(res.message);
+                }
+            });
+        });
+
+        // Press Enter to send
+        $('#query').keypress(function (e) {
+            if (e.which === 13) $('#sendBtn').click();
+        });
+
+        // Click new chat
+        $('#newChatBtn').click(function () { newSession(); });
+
+        // Click session from history
+        $('#chatSessionsList').on('click', 'li', function () {
+            const sessionId = $(this).data('id');
+            loadHistory(sessionId); // fix: send sessionId here
+        });
+
+        // Initial load
+        $(document).ready(function () {
+            loadSessions();
+        });
+    </script>
 </body>
+
 </html>

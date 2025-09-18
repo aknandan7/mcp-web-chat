@@ -39,13 +39,13 @@ try {
 
     // Get chat history of a session
     if ($action === 'get_history') {
-        $session_id = $_GET['session_id'] ?? null;
+        $session_id = $data['session_id'] ?? null; // FIX: get session_id from POST JSON
         if (!$session_id) throw new Exception('session_id missing');
 
-        $stmt = $pdo->prepare("SELECT message_from,message,created_at FROM chat_history WHERE session_id=? ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT id, message_from as sender, message, created_at FROM chat_history WHERE session_id=? ORDER BY created_at ASC");
         $stmt->execute([$session_id]);
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode(['status'=>'success','messages'=>$messages]);
+        echo json_encode(['status'=>'success','history'=>$messages]);
         exit;
     }
 

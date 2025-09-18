@@ -2,7 +2,16 @@
       overflow-x: hidden;
       background: #f9fafb;
     }
-
+      #chat-history{
+      width: 272px;
+      height: 70vh;
+      overflow-y: auto;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f9f9f9;
+      margin-left: -16px;
+    }
+ 
     /* Sidebar */
     .sidebar {
       position: fixed;
@@ -85,4 +94,14 @@
       .sidebar.show { left: 0; }
       .content { margin-left: 0; padding-top: 60px; }
       .content.expanded { margin-left: 0; }
+       .chat-header {
+        padding: 15px 20px; /* Adjusting padding for smaller screens */
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the left */
+        justify-content: flex-start; /* Align content at the top */
+    }
+    
+    .chat-header .header-left, .chat-header .header-right {
+        margin: 5px 0; /* Add margin between items for spacing */
+    }
     }
