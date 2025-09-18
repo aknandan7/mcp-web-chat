@@ -9,103 +9,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* Fix for mic button to look professional and perfectly round */
-#micBtn {
-width: 25px;
-height: 25px;
-border-radius: 50% !important;
-display: flex;
-align-items: center;
-justify-content: center;
-border: none !important;
-outline: none !important;
-background: #f8f9fa;
-color: #555;
-font-size: 14px;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-transition: all 0.3s ease;
-margin-right: 17px;
-}
+  .live-dot {
+    display:inline-block;
+    width:10px;
+    height:10px;
+    background:#28a745;
+    border-radius:50%;
+    margin-left:6px;
+    animation:blink 1s infinite;
+    vertical-align:middle;
+  }
+  @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:0}}
 
-#micBtn:hover {
-background: #007bff;
-color: #fff;
-}
+  /* Fix for mic button to look professional and perfectly round */
+  #micBtn {
+    width: 25px;
+    height: 25px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+    outline: none !important;
+    background: #f8f9fa;
+    color: #555;
+    font-size: 14px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    margin-right: 17px;
+  }
 
-#micBtn.active {
-background: #dc3545 !important; /* Red when recording */
-color: #fff !important;
-animation: pulse 1.5s infinite;
-}
-
-/* Pulse animation */
-@keyframes pulse {
-0% { box-shadow: 0 0 0 0 rgba(220,53,69,0.7); }
-70% { box-shadow: 0 0 0 15px rgba(220,53,69,0); }
-100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
-}
-
-body {margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;background:#fafafa;overflow:hidden;}
-.sidebar {position:fixed;top:0;left:0;height:100vh;width:250px;background:#f5f5f5;border-right:1px solid #ddd;padding:15px;overflow-y:auto;transition:transform 0.3s ease;z-index:1000;}
-.sidebar h4 {margin-top:0;font-size:16px;font-weight:bold;}
-.sidebar ul {list-style:none;padding:0;}
-.sidebar ul li {padding:8px 10px;cursor:pointer;border-radius:4px;}
-.sidebar ul li:hover {background:#e0e0e0;}
-.toggle-btn {position:fixed;top:10px;left:10px;background:#fff;border:1px solid #ddd;border-radius:4px;padding:6px 10px;cursor:pointer;z-index:1100;display:none;}
-.content {margin-left:250px;height:100vh;display:flex;flex-direction:column;}
-.chat-header {padding:15px;border-bottom:1px solid #ddd;background:#fff;font-weight:bold;display:flex;justify-content:space-between;align-items:center;}
-.chat-box {flex:1;padding:15px;overflow-y:auto;background:#fafafa; background-image: url('image/indo-backimage-chat.jpg');background-size: contain;}
-.chat-message {margin-bottom:15px;display:flex;flex-direction:column;}
-.chat-message.user {align-items:flex-start;}
-.chat-message.bot {align-items:flex-end;}
-.chat-message .bubble {padding:10px 14px;border-radius:12px;max-width:70%;display:inline-block;}
-.chat-message.user .bubble {background:#ffffff;color:#3f3e3e;margin-right:auto;}
-.chat-message.bot .bubble {background:#d9fdd3;color:#3f3e3e;margin-left:auto;}
-.chat-time {display:block;font-size:11px;margin-top:4px;color:#666;}
-.chat-input {padding:10px;border-top:1px solid #ddd;background:#fff;}
-/* Container tweaks */
-.whatsapp-input-bar {border-radius: 30px;overflow: hidden;background: #fff;border: 1px solid #ccc;padding: 0px;}
-.icon-btn {background: transparent;border: none;color: #555;font-size: 18px;padding: 0 10px;cursor: pointer;transition: all 0.3s ease;}
-.chat-input {border: none !important;box-shadow: none !important;font-size: 16px;background: transparent;}
-.icon-btn:hover {color: #000;}
-#chatSessionsList li.active-session {
+  #micBtn:hover {
     background: #007bff;
     color: #fff;
-}
-#chatSessionsList li.active-session:hover {
-    background: #0056b3;
-}
+  }
 
-@media (max-width:768px){
-    .sidebar{transform:translateX(-100%);}
-    .sidebar.show{transform:translateX(0);}
-    .content{margin-left:0;}
-    .toggle-btn{display:block;}
-    .chat-header {padding: 15px 84px;}
-    .sidebar h4 {text-align: center;}
-    #newChatBtn{margin-bottom: 3px;border-bottom: 1px solid #ddd;border-radius: 2px;}
-}
+  #micBtn.active {
+    background: #dc3545 !important; /* Red when recording */
+    color: #fff !important;
+    animation: pulse 1.5s infinite;
+  }
 
-/* Mic active recording state */
-#micBtn.active {
-  background: #dc3545 !important;
-  border-radius: 50%;
-  color: #fff !important;
-  animation: pulse 1.5s infinite;
-}
+  /* Pulse animation */
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220,53,69,0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(220,53,69,0); }
+    100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
+  }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
+  body {margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;background:#fafafa;overflow:hidden;}
+  .sidebar {position:fixed;top:0;left:0;height:100vh;width:250px;background:#f5f5f5;border-right:1px solid #ddd;padding:15px;overflow-y:auto;transition:transform 0.3s ease;z-index:1000;}
+  .sidebar h4 {margin-top:0;font-size:16px;font-weight:bold;}
+  .sidebar ul {list-style:none;padding:0;}
+  .sidebar ul li {padding:8px 10px;cursor:pointer;border-radius:4px;}
+  .sidebar ul li:hover {background:#e0e0e0;}
+  .toggle-btn {position:fixed;top:10px;left:10px;background:#fff;border:1px solid #ddd;border-radius:4px;padding:6px 10px;cursor:pointer;z-index:1100;display:none;}
+  .content {margin-left:250px;height:100vh;display:flex;flex-direction:column;}
+  .chat-header {padding:20px;border-bottom:1px solid #ddd;background:#fff;font-weight:bold;display:flex;width:100%;justify-content:space-between;align-items:center;}
+  .chat-box {flex:1;padding:15px;overflow-y:auto;background:#fafafa; background-image: url('image/indo-backimage-chat.jpg');background-size: contain;}
+  .chat-message {margin-bottom:15px;display:flex;flex-direction:column;}
+  .chat-message.user {align-items:flex-start;}
+  .chat-message.bot {align-items:flex-end;}
+  .chat-message .bubble {padding:10px 14px;border-radius:12px;max-width:70%;display:inline-block;}
+  .chat-message.user .bubble {background:#ffffff;color:#3f3e3e;margin-right:auto;}
+  .chat-message.bot .bubble {background:#d9fdd3;color:#3f3e3e;margin-left:auto;}
+  .chat-time {display:block;font-size:11px;margin-top:4px;color:#666;}
+  .chat-input {padding:10px;border-top:1px solid #ddd;background:#fff;}
+  /* Container tweaks */
+  .whatsapp-input-bar {border-radius: 30px;overflow: hidden;background: #fff;border: 1px solid #ccc;padding: 0px;}
+  .icon-btn {background: transparent;border: none;color: #555;font-size: 18px;padding: 0 10px;cursor: pointer;transition: all 0.3s ease;}
+  .chat-input {border: none !important;box-shadow: none !important;font-size: 16px;background: transparent;}
+  .icon-btn:hover {color: #000;}
+  #chatSessionsList li.active-session {
+    /* background: #ffffff; */
+    color: #1604ff;
+    font-weight: 700;
+  }
+  #chatSessionsList li.active-session:hover {
+      /* background: #0056b3; */
+  }
+
+  @media (max-width:768px){
+      .sidebar{transform:translateX(-100%);}
+      .sidebar.show{transform:translateX(0);}
+      .content{margin-left:0;}
+      .toggle-btn{display:block;}
+      .chat-header {padding: 15px 84px;}
+      .sidebar h4 {text-align: center;}
+      #newChatBtn{margin-bottom: 3px;border-bottom: 1px solid #ddd;border-radius: 2px;}
+  }
+
+  /* Mic active recording state */
+  #micBtn.active {
+    background: #dc3545 !important;
+    border-radius: 50%;
+    color: #fff !important;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  .chat-header, span{
+       margin: 0 auto;
+  }
 </style>
 </head>
 
 <body>
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-    <div style="border-bottom:1px solid #ddd;padding:2px 0px 7px 34px;">
+    <div style="border-bottom:1px solid #ddd;padding:9px 0px 7px 34px;">
         <h4><i class="fa fa-comments"></i> iHRMS Chat</h4>
     </div>
     <ul>
@@ -126,7 +142,7 @@ body {margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;backgroun
         <input type="hidden" id="indo_code" value="SAM-EC2003">
         <input type="hidden" id="session_id" value="">
         <div class="input-group whatsapp-input-bar">
-            <input type="text" id="query" class="form-control input-lg chat-input" placeholder="Type a message..." style="padding-left: 25px;border-radius: 30px;">
+            <input type="text" id="query" class="form-control input-lg chat-input" autofocus placeholder="Type a message..." style="padding-left: 25px;border-radius: 30px;">
             <span class="input-group-btn">
                 <!-- Mic button -->
                 <button class="btn btn-default btn-lg icon-btn" id="micBtn">
@@ -149,7 +165,12 @@ function getCurrentTime(){
 // Sidebar toggle
 $('#toggleBtn').click(function(){ $('#sidebar').toggleClass('show'); });
 
-// Load sessions
+// ===== Highlight active session with live dot =====
+function markActiveSession(li){
+    $('#chatSessionsList li').removeClass('active-session').find('.live-dot').remove();
+    $(li).addClass('active-session').append('<span class="live-dot"></span>');
+}
+
 // Load sessions
 function loadSessions(){
     const empCode = $('#indo_code').val();
@@ -169,10 +190,8 @@ function loadSessions(){
                     $('#chatSessionsList').append(`<li data-id="${s.id}">${s.title} <small>${s.created_at}</small></li>`);
                 });
                 // Highlight latest session
-                const latestSessionId = res.sessions[0].id;
-                $('#chatSessionsList li').removeClass('active-session');
-                $(`#chatSessionsList li[data-id="${latestSessionId}"]`).addClass('active-session');
-                loadHistory(latestSessionId);
+                markActiveSession($('#chatSessionsList li').first());
+                loadHistory(res.sessions[0].id);
             }
         }
     });
@@ -180,13 +199,9 @@ function loadSessions(){
 
 // Click on session
 $('#chatSessionsList').on('click','li',function(){
-    const sessionId = $(this).data('id');
-    // Highlight selected session
-    $('#chatSessionsList li').removeClass('active-session');
-    $(this).addClass('active-session');
-    loadHistory(sessionId);
+    markActiveSession(this);
+    loadHistory($(this).data('id'));
 });
-
 
 // Load chat history
 function loadHistory(sessionId){
@@ -243,17 +258,14 @@ function sendMessage(query){
     const empCode = $('#indo_code').val();
     if(!currentSessionId){ alert("Please start a new chat first!"); return; }
 
-    // Show user message
     $('#chatBox').append(`<div class="chat-message user"><div class="bubble">${query} <small class="chat-time">${getCurrentTime()}</small></div></div>`);
     $('#query').val('');
     $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
 
-    // Show typing indicator
     const typingDiv = $('<div class="chat-message bot"><div class="bubble">Bot is typing...</div></div>');
     $('#chatBox').append(typingDiv);
     $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
 
-    // AJAX call
     $.ajax({
         url:'chat_process.php?action=send_message',
         method:'POST',
@@ -279,7 +291,6 @@ $('#query').keypress(function(e){
 });
 
 $('#newChatBtn').click(function(){ newSession(); });
-$('#chatSessionsList').on('click','li',function(){ loadHistory($(this).data('id')); });
 $(document).ready(function(){ loadSessions(); });
 
 // ===== Speech Recognition Toggle =====
@@ -296,14 +307,8 @@ if(SpeechRecognition){
 
     $('#micBtn').click(function(){
         if(!isListening){
-            try {
-                recognition.start();
-            } catch(e) {
-                console.warn("Recognition already started.");
-            }
-        } else {
-            recognition.stop();
-        }
+            try { recognition.start(); } catch(e){ console.warn("Recognition already started."); }
+        } else { recognition.stop(); }
     });
 
     recognition.onstart = function(){
@@ -317,22 +322,15 @@ if(SpeechRecognition){
         $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
     };
 
-    //  AUto Send Message when mic enable
     recognition.onresult = function(event){
         const resultIndex = event.resultIndex;
         const result = event.results[resultIndex];
-
-        // Only send when final transcript is ready
         if(result.isFinal){
             const speechResult = result[0].transcript.trim();
-            if(speechResult !== ''){
-                sendMessage(speechResult); // Auto-send
-            }
+            if(speechResult !== '') sendMessage(speechResult); 
         }
     };
 
-
-    
     recognition.onend = function(){
         isListening = false;
         $('#micBtn').removeClass('active');
