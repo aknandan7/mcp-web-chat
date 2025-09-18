@@ -59,8 +59,8 @@ body {margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;backgroun
 .chat-message.user {align-items:flex-start;}
 .chat-message.bot {align-items:flex-end;}
 .chat-message .bubble {padding:10px 14px;border-radius:12px;max-width:70%;display:inline-block;}
-.chat-message.user .bubble {background:#eaeaea;color:#000;margin-right:auto;}
-.chat-message.bot .bubble {background:#007bff;color:#fff;margin-left:auto;}
+.chat-message.user .bubble {background:#ffffff;color:#3f3e3e;margin-right:auto;}
+.chat-message.bot .bubble {background:#d9fdd3;color:#3f3e3e;margin-left:auto;}
 .chat-time {display:block;font-size:11px;margin-top:4px;color:#666;}
 .chat-input {padding:10px;border-top:1px solid #ddd;background:#fff;}
 /* Container tweaks */
@@ -68,6 +68,13 @@ body {margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;backgroun
 .icon-btn {background: transparent;border: none;color: #555;font-size: 18px;padding: 0 10px;cursor: pointer;transition: all 0.3s ease;}
 .chat-input {border: none !important;box-shadow: none !important;font-size: 16px;background: transparent;}
 .icon-btn:hover {color: #000;}
+#chatSessionsList li.active-session {
+    background: #007bff;
+    color: #fff;
+}
+#chatSessionsList li.active-session:hover {
+    background: #0056b3;
+}
 
 @media (max-width:768px){
     .sidebar{transform:translateX(-100%);}
@@ -143,6 +150,7 @@ function getCurrentTime(){
 $('#toggleBtn').click(function(){ $('#sidebar').toggleClass('show'); });
 
 // Load sessions
+// Load sessions
 function loadSessions(){
     const empCode = $('#indo_code').val();
     $.ajax({
@@ -160,12 +168,25 @@ function loadSessions(){
                 res.sessions.forEach(s=>{
                     $('#chatSessionsList').append(`<li data-id="${s.id}">${s.title} <small>${s.created_at}</small></li>`);
                 });
+                // Highlight latest session
                 const latestSessionId = res.sessions[0].id;
+                $('#chatSessionsList li').removeClass('active-session');
+                $(`#chatSessionsList li[data-id="${latestSessionId}"]`).addClass('active-session');
                 loadHistory(latestSessionId);
             }
         }
     });
 }
+
+// Click on session
+$('#chatSessionsList').on('click','li',function(){
+    const sessionId = $(this).data('id');
+    // Highlight selected session
+    $('#chatSessionsList li').removeClass('active-session');
+    $(this).addClass('active-session');
+    loadHistory(sessionId);
+});
+
 
 // Load chat history
 function loadHistory(sessionId){
