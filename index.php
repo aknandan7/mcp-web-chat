@@ -18,7 +18,7 @@
     .toggle-btn {position:fixed;top:10px;left:10px;background:#fff;border:1px solid #ddd;border-radius:4px;padding:6px 10px;cursor:pointer;z-index:1100;display:none;}
     .content {margin-left:250px;height:100vh;display:flex;flex-direction:column;}
     .chat-header {padding:15px;border-bottom:1px solid #ddd;background:#fff;font-weight:bold;display:flex;justify-content:space-between;align-items:center;}
-    .chat-box {flex:1;padding:15px;overflow-y:auto;background:#fafafa;}
+    .chat-box {flex:1;padding:15px;overflow-y:auto;background:#fafafa; background-image: url('image/indo-backimage-chat.jpg');background-size: contain;}
     .chat-message {margin-bottom:15px;display:flex;flex-direction:column;}
     .chat-message.user {align-items:flex-start;}
     .chat-message.bot {align-items:flex-end;}
@@ -27,13 +27,44 @@
     .chat-message.bot .bubble {background:#007bff;color:#fff;margin-left:auto;}
     .chat-time {display:block;font-size:11px;margin-top:4px;color:#666;}
     .chat-input {padding:10px;border-top:1px solid #ddd;background:#fff;}
+    /* Container tweaks */
+.whatsapp-input-bar {
+    border-radius: 30px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 0px;
+}
+
+/* Adjust icons inside input group */
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 18px;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+/* Input styling */
+.chat-input {
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 16px;
+    background: transparent;
+}
+
+/* Button hover (optional) */
+.icon-btn:hover {
+    color: #000;
+}
     @media (max-width:768px){.sidebar{transform:translateX(-100%);}
     .sidebar.show{transform:translateX(0);}
     .content{margin-left:0;}
     .toggle-btn{display:block;}
     .chat-header {padding: 15px 84px;}
     .sidebar h4 {text-align: center;}
-    #newChatBtn{margin-bottom: 3px;border-bottom: 1px solid #ddd;border-radius: 2px;}
+    #newChatBtn{margin-bottom: 3px;border-bottom: 1px solid #ddd;border-radius: 2px;
 }
 </style>
 </head>
@@ -61,12 +92,18 @@
     <div class="chat-input">
         <input type="hidden" id="indo_code" value="SAM-EC2003">
         <input type="hidden" id="session_id" value="">
-        <div class="input-group">
-            <input type="text" id="query" class="form-control" placeholder="Type a message...">
-            <span class="input-group-btn">
-                <button class="btn btn-primary" id="sendBtn">Send</button>
-            </span>
-        </div>
+       <!-- Your Existing Input Group, Enhanced -->
+      <div class="input-group whatsapp-input-bar">
+          <!-- Input -->
+          <input type="text" id="query" class="form-control input-lg chat-input" placeholder="Type a message..." style="padding-left: 25px;border-radius: 30px;">
+
+          <!-- Right Icon/Button -->
+          <span class="input-group-btn">
+              <button class="btn btn-default btn-lg icon-btn" id="sendBtn">
+                  <i class='fa fa-microphone' id="sendIcon"></i>
+              </button>
+          </span>
+      </div>
     </div>
 </div>
 
