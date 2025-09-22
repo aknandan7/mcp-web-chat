@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="sidebar" id="sidebar">
-    <div style="border-bottom:1px solid #ddd;padding:9px 0px 7px 34px;">
+    <div style="border-bottom:1px solid #ddd;padding:0px 0px 7px 34px;">
         <h4><img src="https://indovisionservices.in/info/dev/v15//uploads/ihrms/ihrms-logo.png" height="30px" style="margin-right:10px">iHRMS Chat</h4>
     </div>
     <ul>
