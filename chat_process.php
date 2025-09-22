@@ -39,7 +39,7 @@ try {
 
     // Get chat history of a session
     if ($action === 'get_history') {
-        $session_id = $data['session_id'] ?? null; // FIX: get session_id from POST JSON
+        $session_id = $data['session_id'] ?? null;
         if (!$session_id) throw new Exception('session_id missing');
 
         $stmt = $pdo->prepare("SELECT id, message_from as sender, message, created_at FROM chat_history WHERE session_id=? ORDER BY created_at ASC");
@@ -68,6 +68,17 @@ try {
         // Store user message
         $stmt = $pdo->prepare("INSERT INTO chat_history (session_id,message_from,message) VALUES (?,?,?)");
         $stmt->execute([$session_id,'user',$userQuery]);
+
+        // 🔥 Update session title if still "New Chat"
+        $stmt = $pdo->prepare("SELECT title FROM chat_sessions WHERE id=?");
+        $stmt->execute([$session_id]);
+        $currentTitle = $stmt->fetchColumn();
+
+        if ($currentTitle === 'New Chat') {
+            $shortTitle = mb_strimwidth($userQuery, 0, 50, "..."); // trim long questions
+            $stmt = $pdo->prepare("UPDATE chat_sessions SET title=? WHERE id=?");
+            $stmt->execute([$shortTitle, $session_id]);
+        }
 
         // Generate bot response
         $responseText = '';

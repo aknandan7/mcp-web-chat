@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+/* Your CSS from previous code remains unchanged */
 body {margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;background:#fafafa;overflow:hidden;}
 .sidebar {position:fixed;top:0;left:0;height:100vh;width:250px;background:#f5f5f5;border-right:1px solid #ddd;padding:15px;overflow-y:auto;transition:transform 0.3s ease;z-index:1000;}
 .sidebar h4 {margin-top:0;font-size:16px;font-weight:bold;}
@@ -77,20 +78,25 @@ body {margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;backgroun
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script>
 let currentSessionId = null;
+let previousFirstQuestion = null;
 
+// Get current time
 function getCurrentTime(){
     const now = new Date();
     return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
 }
 
+// Toggle sidebar on mobile
 $('#toggleBtn').click(function(){ $('#sidebar').toggleClass('show'); });
 
+// Mark active session
 function markActiveSession(li){
     $('#chatSessionsList li').removeClass('active-session').find('.live-dot').remove();
     $(li).addClass('active-session');
-    $(li).find('strong').append('<span class="live-dot"></span>');
+    if(!$(li).find('.live-dot').length){ $(li).find('strong').append('<span class="live-dot"></span>'); }
 }
 
+// Load all chat sessions
 function loadSessions(){
     const empCode = $('#indo_code').val();
     $.ajax({
@@ -106,17 +112,18 @@ function loadSessions(){
                     return;
                 }
                 res.sessions.forEach((session, index) => {
-                    let title = session.title || "New Chat";
+                    let title = session.title || "Untitled";
                     let words = title.split(/\s+/);
                     if(words.length > 5){ title = words.slice(0,5).join(' ') + '.'; }
 
-                    let li = $(`<li data-id="${session.id}" ${index===0 ? 'class="active-session"' : ''}>
-                        <strong>${title}${index===0 ? '<span class="live-dot"></span>' : ''}</strong><br>
+                    let li = $(`<li data-id="${session.id}">
+                        <strong>${title}</strong><br>
                         <small style="font-size:10px;color:#181717c7;margin-top:0px;position:relative;">${session.created_at}</small>
                     </li>`);
                     $('#chatSessionsList').append(li);
 
                     if(index===0){
+                        markActiveSession(li);
                         currentSessionId = session.id;
                         $('#session_id').val(currentSessionId);
                         loadHistory(session.id);
@@ -127,8 +134,13 @@ function loadSessions(){
     });
 }
 
-$('#chatSessionsList').on('click','li',function(){ markActiveSession(this); loadHistory($(this).data('id')); });
+// Click on a session
+$('#chatSessionsList').on('click','li',function(){ 
+    markActiveSession(this); 
+    loadHistory($(this).data('id')); 
+});
 
+// Load chat history
 function loadHistory(sessionId){
     if(!sessionId) return;
     currentSessionId = sessionId;
@@ -143,10 +155,11 @@ function loadHistory(sessionId){
         success:function(res){
             $('#chatBox').html('');
             if(res.status==='success'){
-                const history = res.history || res.messages || [];
+                const history = res.history || [];
                 if(history.length===0){ 
                     $('#chatBox').html('<div style="text-align:center;color:#666;margin-top:20px;">No chat history yet</div>'); 
                 } else { 
+                    previousFirstQuestion = history[0].message; // save first question
                     history.forEach(m=>{
                         const cls = m.sender==='user' ? 'user' : 'bot';
                         $('#chatBox').append(`<div class="chat-message ${cls}"><div class="bubble">${m.message} <small class="chat-time">${m.created_at}</small></div></div>`);
@@ -158,28 +171,48 @@ function loadHistory(sessionId){
     });
 }
 
+// Create new session
 function newSession(){
     const empCode = $('#indo_code').val();
-    $.ajax({
-        url:'chat_process.php?action=new_session',
-        method:'POST',
-        contentType:'application/json',
-        data:JSON.stringify({indo_code:empCode}),
-        success:function(res){
-            if(res.status==='success'){
-                currentSessionId=res.session_id;
-                $('#session_id').val(currentSessionId);
-                $('#chatBox').html(`<div class="chat-message bot"><div class="bubble">Hello! How can I help you today? <small>${getCurrentTime()}</small></div></div>`);
-                loadSessions();
-            } else alert(res.message || "Failed to create session");
-        }
-    });
+    $('#query').focus();
+    if(previousFirstQuestion){ 
+        // Update previous session title with its first question
+        $.ajax({
+            url:'chat_process.php?action=update_title',
+            method:'POST',
+            contentType:'application/json',
+            data:JSON.stringify({indo_code:empCode, session_id:currentSessionId, title:previousFirstQuestion}),
+            success:function(res){ /* updated */ }
+        });
+    }
+    currentSessionId = null;
+    $('#session_id').val('');
+    $('#chatBox').html('');
+    previousFirstQuestion = null;
 }
 
+// Send message
 function sendMessage(query){
     if(!query) return;
     const empCode = $('#indo_code').val();
-    if(!currentSessionId){ alert("Please start a new chat first!"); return; }
+    if(!currentSessionId){ 
+        // create new session before sending message
+        $.ajax({
+            url:'chat_process.php?action=new_session',
+            method:'POST',
+            contentType:'application/json',
+            data:JSON.stringify({indo_code:empCode}),
+            success:function(res){
+                if(res.status==='success'){
+                    currentSessionId=res.session_id;
+                    $('#session_id').val(currentSessionId);
+                    loadSessions(); // refresh sidebar
+                    sendMessage(query); // send actual message
+                } else alert(res.message || "Failed to create session");
+            }
+        });
+        return;
+    }
 
     $('#chatBox').append(`<div class="chat-message user"><div class="bubble">${query} <small class="chat-time">${getCurrentTime()}</small></div></div>`);
     $('#query').val('');
@@ -193,17 +226,19 @@ function sendMessage(query){
         url:'chat_process.php?action=send_message',
         method:'POST',
         contentType:'application/json',
-        data:JSON.stringify({indo_code:empCode,session_id:currentSessionId,query:query}),
+        data:JSON.stringify({indo_code:empCode, session_id:currentSessionId, query:query}),
         success:function(res){
             typingDiv.remove();
             if(res.status==='success'){
                 $('#chatBox').append(`<div class="chat-message bot"><div class="bubble">${res.response} <small class="chat-time">${getCurrentTime()}</small></div></div>`);
                 $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
+                loadSessions(); // refresh sidebar
             } else alert(res.message);
         }
     });
 }
 
+// Enter key press
 $('#query').keypress(function(e){ if(e.which===13){ e.preventDefault(); sendMessage($('#query').val().trim()); } });
 $('#newChatBtn').click(function(){ newSession(); });
 $(document).ready(function(){ loadSessions(); });
