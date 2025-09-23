@@ -1,9 +1,24 @@
 <?php
 require_once __DIR__ . '/models/Employee.php';
 
+// Function to log queries
+function logQuery($userQuery, $builtQueries) {
+    $logFile = __DIR__ . '/log.txt';
+    $time = date('Y-m-d H:i:s');
+
+    $logData = "[$time] User Query: $userQuery" . PHP_EOL;
+    foreach ($builtQueries as $q) {
+        $logData .= "[$time] Built Query: $q" . PHP_EOL;
+    }
+    $logData .= PHP_EOL;
+
+    file_put_contents($logFile, $logData, FILE_APPEND);
+}
+
 function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery, $synonyms = []) {
     $userQueryLower = strtolower($userQuery);
     $requestedFields = [];
+    $builtQueries = []; // Array to store all generated SQL queries
 
     // Step 1: detect fields using synonyms
     foreach ($metadata as $table => $columns) {
@@ -44,13 +59,15 @@ function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery, $synony
             $query = "SELECT $colsStr FROM $table WHERE indo_code='" . addslashes($indo_code) . "'";
         }
 
+        // Save query for logging
+        $builtQueries[] = $query;
+
         $result = $employee->query($indo_code, $query);
 
         // Ensure $result is always an array of rows
         if (is_array($result)) {
             $allResults[$table] = $result;
         } elseif (is_string($result) && !empty($result)) {
-            // Wrap single string into array for consistency
             $allResults[$table] = [[$colsStr => $result]];
         }
     }
@@ -59,9 +76,7 @@ function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery, $synony
     $botReply = [];
 
     foreach ($allResults as $table => $rows) {
-        if (!is_array($rows)) {
-            continue; // skip invalid results
-        }
+        if (!is_array($rows)) continue;
 
         if ($table === 'emp_leavequota_info') {
             $botReply[] = "**Leave Balances:**";
@@ -110,5 +125,12 @@ function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery, $synony
         $botReply[] = "No data found.";
     }
 
-    return ['response' => implode("\n\n", $botReply)];
+    // Log the queries
+    logQuery($userQuery, $builtQueries);
+
+    return [
+        'response' => implode("\n\n", $botReply),
+        'userQuery' => $userQuery,
+        'builtQueries' => $builtQueries
+    ];
 }

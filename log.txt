@@ -1,0 +1,4 @@
+[2025-09-23 09:09:52] User Query: what is my name and email
+[2025-09-23 09:09:52] Built Query: SELECT resource_name, email_id FROM emp_personal_info WHERE indo_code='SAM-EC2003'
+[2025-09-23 09:09:52] Built Query: SELECT name FROM emp_holidays_info WHERE indo_code='SAM-EC2003'
+

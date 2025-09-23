@@ -97,6 +97,9 @@
                 contentType: 'application/json',
                 data: JSON.stringify({ indo_code: empCode }),
                 success: function (res) {
+                    //Log user query and built queries
+                    console.log("User Query:", res.userQuery);
+                    console.log("Built SQL Queries:", res.builtQueries);
                     if (res.status === 'success') {
                         $('#chatSessionsList').html('');
                         if (res.sessions.length === 0) {
