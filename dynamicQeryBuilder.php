@@ -1,15 +1,6 @@
 <?php
 require_once __DIR__ . '/models/Employee.php';
 
-/**
- * Build dynamic query based on natural language and synonyms
- * @param Employee $employee
- * @param array $metadata - table => [columns]
- * @param string $indo_code
- * @param string $userQuery
- * @param array $synonyms - column => [synonyms]
- * @return array ['response' => 'formatted string']
- */
 function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery, $synonyms = []) {
     $userQueryLower = strtolower($userQuery);
     $requestedFields = [];
@@ -40,26 +31,84 @@ function buildDynamicQuery($employee, $metadata, $indo_code, $userQuery, $synony
     $allResults = [];
     foreach ($requestedFields as $table => $cols) {
         $colsStr = implode(', ', $cols);
-        $query = "SELECT $colsStr FROM $table WHERE indo_code='$indo_code'";
+        $query = "";
+
+        // Special handling for leave quota
+        if ($table === 'emp_leavequota_info' && in_array('lt_id', $cols)) {
+            $indo_code_safe = addslashes($indo_code);
+            $query = "SELECT lq.*, mlt.name AS leave_type_name, mlt.short_name 
+                      FROM emp_leavequota_info lq
+                      LEFT JOIN master_leavetype_info mlt ON lq.lt_id = mlt.lt_id
+                      WHERE lq.indo_code='$indo_code_safe'";
+        } else {
+            $query = "SELECT $colsStr FROM $table WHERE indo_code='" . addslashes($indo_code) . "'";
+        }
+
         $result = $employee->query($indo_code, $query);
 
-        if (is_array($result) && count($result) > 0) {
-            $allResults[$table] = $result[0]; // first row per table
+        // Ensure $result is always an array of rows
+        if (is_array($result)) {
+            $allResults[$table] = $result;
+        } elseif (is_string($result) && !empty($result)) {
+            // Wrap single string into array for consistency
+            $allResults[$table] = [[$colsStr => $result]];
         }
     }
 
     // Step 3: format response dynamically
     $botReply = [];
-    foreach ($allResults as $table => $row) {
-        foreach ($row as $key => $value) {
-            if (strpos($key, 'dob') !== false || strpos($key, 'date') !== false) {
-                $value = date('d/m/Y', strtotime($value));
+
+    foreach ($allResults as $table => $rows) {
+        if (!is_array($rows)) {
+            continue; // skip invalid results
+        }
+
+        if ($table === 'emp_leavequota_info') {
+            $botReply[] = "**Leave Balances:**";
+            $list = [];
+            $explanation = [];
+
+            foreach ($rows as $index => $row) {
+                if (!is_array($row)) continue;
+
+                $leaveName = $row['leave_type_name'] ?? $row['short_name'] ?? $row['lt_id'];
+                $leaveDays = $row['leaves'] ?? 0;
+
+                $list[] = ($index + 1) . ". $leaveName: $leaveDays";
+
+                if ($leaveDays > 0) {
+                    $explanation[] = "Period " . ($index + 1) . ": Took $leaveDays days of $leaveName.";
+                } else {
+                    $explanation[] = "Period " . ($index + 1) . ": Took no $leaveName.";
+                }
             }
-            $botReply[] = ucfirst(str_replace('_', ' ', $key)) . ": $value";
+
+            $botReply[] = implode("\n", $list);
+            if (!empty($explanation)) {
+                $botReply[] = "\n**Explanation:**\n" . implode("\n", $explanation);
+            }
+
+        } else {
+            foreach ($rows as $row) {
+                if (!is_array($row)) continue;
+
+                foreach ($row as $key => $value) {
+                    if ($value === null || $value === '') continue;
+
+                    // Format dates nicely
+                    if (strpos($key, 'dob') !== false || strpos($key, 'date') !== false) {
+                        $value = date('d/m/Y', strtotime($value));
+                    }
+
+                    $botReply[] = ucfirst(str_replace('_', ' ', $key)) . ": $value";
+                }
+            }
         }
     }
 
-    if (empty($botReply)) $botReply[] = "No data found.";
+    if (empty($botReply)) {
+        $botReply[] = "No data found.";
+    }
 
-    return ['response' => implode(', ', $botReply)];
+    return ['response' => implode("\n\n", $botReply)];
 }
